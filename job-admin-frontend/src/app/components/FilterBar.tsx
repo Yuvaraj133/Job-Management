@@ -21,12 +21,9 @@ export default function Navbar({ filters, setFilters }: any) {
   };
 
   return (
-    <Group
-  position="apart"
-  spacing="md"
-  wrap="wrap"
-  sx={{ marginBottom: 'var(--mantine-spacing-lg)' }} // or just '24px' if you want
-  >
+ 
+      <Group sx={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+
       <TextInput
         placeholder="Search by Job Title, Role"
         name="title"
