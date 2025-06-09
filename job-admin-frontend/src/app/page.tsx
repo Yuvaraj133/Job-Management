@@ -3,10 +3,8 @@
 import { useEffect, useState } from 'react';
 import {
   Container,
-  Button,
-  Divider,
-  Title,
-  SimpleGrid,
+  Grid,
+  GridCol,
   Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
@@ -110,21 +108,20 @@ export default function HomePage() {
     <Container size="xl" py="lg">
       <Navbar onCreateClick={open} />
       <FilterBar filters={filters} setFilters={setFilters} />
-      <SimpleGrid
-        cols={4}
-        spacing="lg"
-        breakpoints={[
-          { maxWidth: 1200, cols: 3 },
-          { maxWidth: 900, cols: 2 },
-          { maxWidth: 600, cols: 1 },
-        ]}
-      >
+
+      <Grid gutter="lg">
         {filteredJobs.length > 0 ? (
-          filteredJobs.map((job) => <JobCard key={job.id} job={job} />)
+          filteredJobs.map((job) => (
+            <GridCol key={job.id} span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
+              <JobCard job={job} />
+            </GridCol>
+          ))
         ) : (
-          <Text>No jobs match the selected filters.</Text>
+          <GridCol span={12}>
+            <Text>No jobs match the selected filters.</Text>
+          </GridCol>
         )}
-      </SimpleGrid>
+      </Grid>
 
       <JobFormModal opened={opened} close={close} onSubmit={handleJobCreate} />
     </Container>
