@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useState } from 'react';
 import {
   Modal,
   Stack,
@@ -10,7 +11,6 @@ import {
   Grid,
   Group,
   Box,
-  NumberInput,
   useMantineTheme,
 } from '@mantine/core';
 import { useForm } from 'react-hook-form';
@@ -20,12 +20,40 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
   const { register, handleSubmit, reset, setValue } = useForm();
   const theme = useMantineTheme();
 
+  // Local state for controlled salary inputs
+  const [salaryMin, setSalaryMin] = useState('');
+  const [salaryMax, setSalaryMax] = useState('');
+
+  // Format value as currency string (e.g. ₹1,23,456)
+  const formatCurrency = (value: string | number) => {
+    if (typeof value === 'number') value = value.toString();
+    if (!value) return '';
+    const num = Number(value.replace(/[₹,]/g, ''));
+    if (isNaN(num)) return '';
+    return `₹${num.toLocaleString('en-IN')}`;
+  };
+
+  // Remove formatting and return raw number string
+  const parseCurrency = (value: string) => {
+    return value.replace(/[₹,]/g, '');
+  };
+
+  // Update state and react-hook-form value for salary min
+  const handleSalaryMinChange = (value: string) => {
+    setSalaryMin(formatCurrency(value));
+    setValue('salaryMin', parseCurrency(value));
+  };
+
+  // Update state and react-hook-form value for salary max
+  const handleSalaryMaxChange = (value: string) => {
+    setSalaryMax(formatCurrency(value));
+    setValue('salaryMax', parseCurrency(value));
+  };
+
   const handleFormSubmit = (data: any) => {
-    // Convert to numbers
     data.salaryMin = Number(data.salaryMin) || 0;
     data.salaryMax = Number(data.salaryMax) || 0;
 
-    // Optional string for display
     data.salaryRangeStr =
       data.salaryMin && data.salaryMax
         ? `₹${data.salaryMin} - ₹${data.salaryMax}`
@@ -37,10 +65,11 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
 
     onSubmit(data);
     reset();
+    setSalaryMin('');
+    setSalaryMax('');
     close();
   };
 
-  // Custom styles
   const sharedStyles = {
     label: { fontWeight: 500 },
     input: {
@@ -49,11 +78,6 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
         boxShadow: '0 0 0 1px black',
       },
     },
-  };
-
-  // Controlled handlers for Select components (required for react-hook-form compatibility)
-  const handleSelectChange = (name: string, value: string | null) => {
-    setValue(name, value || '');
   };
 
   return (
@@ -76,19 +100,16 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
               <TextInput
                 label="Job Title"
                 placeholder="Full Stack Developer"
-                {...register('title')}
-                required
+                {...register('title', { required: true })}
                 styles={sharedStyles}
                 withAsterisk={false}
               />
             </Grid.Col>
-
             <Grid.Col span={6}>
               <TextInput
                 label="Company Name"
                 placeholder="Amazon, Microsoft, Swiggy"
-                {...register('companyName')}
-                required
+                {...register('companyName', { required: true })}
                 styles={sharedStyles}
                 withAsterisk={false}
               />
@@ -99,61 +120,45 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
                 label="Location"
                 placeholder="Choose Preferred Location"
                 data={['Chennai', 'Bangalore', 'Remote']}
-                onChange={(value) => handleSelectChange('location', value)}
-                required
+                {...register('location', { required: true })}
                 styles={sharedStyles}
                 withAsterisk={false}
                 rightSection={<KeyboardArrowDownIcon fontSize="small" />}
+                onChange={(value) => setValue('location', value || '')}
               />
             </Grid.Col>
-
             <Grid.Col span={6}>
               <Select
                 label="Job Type"
                 data={['Full-time', 'Part-time', 'Contract', 'Internship']}
-                onChange={(value) => handleSelectChange('jobType', value)}
-                required
+                {...register('jobType', { required: true })}
                 styles={sharedStyles}
                 withAsterisk={false}
                 rightSection={<KeyboardArrowDownIcon fontSize="small" />}
+                onChange={(value) => setValue('jobType', value || '')}
               />
             </Grid.Col>
 
             <Grid.Col span={6}>
               <Grid gutter="sm">
                 <Grid.Col span={6}>
-                  <NumberInput
+                  <TextInput
                     label="Salary Min"
                     placeholder="₹0"
-                    prefix="₹"
-                    {...register('salaryMin')}
-                    hideControls
+                    value={salaryMin}
+                    onChange={(e) => handleSalaryMinChange(e.currentTarget.value)}
                     styles={sharedStyles}
                     withAsterisk={false}
-                    parser={(value) => value?.replace(/₹\s?|(,*)/g, '')}
-                    formatter={(value) =>
-                      !Number.isNaN(parseFloat(value || ''))
-                        ? `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                        : '₹'
-                    }
                   />
                 </Grid.Col>
-
                 <Grid.Col span={6}>
-                  <NumberInput
+                  <TextInput
                     label="Salary Max"
                     placeholder="₹12,00,000"
-                    prefix="₹"
-                    {...register('salaryMax')}
-                    hideControls
+                    value={salaryMax}
+                    onChange={(e) => handleSalaryMaxChange(e.currentTarget.value)}
                     styles={sharedStyles}
                     withAsterisk={false}
-                    parser={(value) => value?.replace(/₹\s?|(,*)/g, '')}
-                    formatter={(value) =>
-                      !Number.isNaN(parseFloat(value || ''))
-                        ? `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                        : '₹'
-                    }
                   />
                 </Grid.Col>
               </Grid>
@@ -163,8 +168,7 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
               <TextInput
                 label="Application Deadline"
                 type="date"
-                {...register('applicationDeadline')}
-                required
+                {...register('applicationDeadline', { required: true })}
                 styles={sharedStyles}
                 withAsterisk={false}
               />
@@ -187,8 +191,7 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
                     },
                   },
                 }}
-                {...register('description')}
-                required
+                {...register('description', { required: true })}
                 withAsterisk={false}
               />
             </Grid.Col>
@@ -205,7 +208,6 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
                 Save Draft
               </Button>
             </Box>
-
             <Box style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Button type="submit" variant="filled" color="#00AAFF">
                 Publish &raquo;
