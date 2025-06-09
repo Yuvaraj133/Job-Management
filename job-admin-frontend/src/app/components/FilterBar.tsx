@@ -84,14 +84,20 @@ export default function Navbar({ filters, setFilters }: Props) {
       />
 
       <Box style={{ flexGrow: 1, minWidth: 250 }}>
-        <Group position="apart" mb={4}>
+        <Box
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginBottom: '8px',
+          }}
+        >
           <Text size="sm" fw={500} c="black">
             Salary Per Month
           </Text>
           <Text size="sm" fw={500} c="black">
             ₹{filters.salaryRange[0] / 1000}k - ₹{filters.salaryRange[1] / 1000}k
           </Text>
-        </Group>
+        </Box>
 
         <RangeSlider
           min={0}
