@@ -11,22 +11,21 @@ import {
   Group,
   Box,
   NumberInput,
+  useMantineTheme,
 } from '@mantine/core';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 export default function JobFormModal({ opened, close, onSubmit }: any) {
-  const { register, handleSubmit, reset, control } = useForm({
-    defaultValues: {
-      salaryMin: undefined,
-      salaryMax: undefined,
-    },
-  });
+  const { register, handleSubmit, reset, setValue } = useForm();
+  const theme = useMantineTheme();
 
   const handleFormSubmit = (data: any) => {
+    // Convert to numbers
     data.salaryMin = Number(data.salaryMin) || 0;
     data.salaryMax = Number(data.salaryMax) || 0;
 
+    // Optional string for display
     data.salaryRangeStr =
       data.salaryMin && data.salaryMax
         ? `₹${data.salaryMin} - ₹${data.salaryMax}`
@@ -41,6 +40,7 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
     close();
   };
 
+  // Custom styles
   const sharedStyles = {
     label: { fontWeight: 500 },
     input: {
@@ -49,6 +49,11 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
         boxShadow: '0 0 0 1px black',
       },
     },
+  };
+
+  // Controlled handlers for Select components (required for react-hook-form compatibility)
+  const handleSelectChange = (name: string, value: string | null) => {
+    setValue(name, value || '');
   };
 
   return (
@@ -65,7 +70,7 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
       }
     >
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <Stack spacing="md" p="sm">
+        <Stack gap="md" style={{ padding: theme.spacing.sm }}>
           <Grid>
             <Grid.Col span={6}>
               <TextInput
@@ -94,7 +99,7 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
                 label="Location"
                 placeholder="Choose Preferred Location"
                 data={['Chennai', 'Bangalore', 'Remote']}
-                {...register('location')}
+                onChange={(value) => handleSelectChange('location', value)}
                 required
                 styles={sharedStyles}
                 withAsterisk={false}
@@ -106,7 +111,7 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
               <Select
                 label="Job Type"
                 data={['Full-time', 'Part-time', 'Contract', 'Internship']}
-                {...register('jobType')}
+                onChange={(value) => handleSelectChange('jobType', value)}
                 required
                 styles={sharedStyles}
                 withAsterisk={false}
@@ -117,54 +122,38 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
             <Grid.Col span={6}>
               <Grid gutter="sm">
                 <Grid.Col span={6}>
-                  <Controller
-                    name="salaryMin"
-                    control={control}
-                    render={({ field }) => (
-                      <NumberInput
-                        label="Salary Min"
-                        placeholder="₹0"
-                        value={field.value}
-                        onChange={(val) => field.onChange(val ?? undefined)}
-                        hideControls
-                        styles={sharedStyles}
-                        withAsterisk={false}
-                        parser={(value: string) =>
-                          value?.replace(/₹\s?|(,*)/g, '') ?? ''
-                        }
-                        formatter={(value: string) => {
-                          const num = Number(value.replace(/₹|,/g, ''));
-                          if (Number.isNaN(num)) return '₹';
-                          return `₹${num.toLocaleString()}`;
-                        }}
-                      />
-                    )}
+                  <NumberInput
+                    label="Salary Min"
+                    placeholder="₹0"
+                    prefix="₹"
+                    {...register('salaryMin')}
+                    hideControls
+                    styles={sharedStyles}
+                    withAsterisk={false}
+                    parser={(value) => value?.replace(/₹\s?|(,*)/g, '')}
+                    formatter={(value) =>
+                      !Number.isNaN(parseFloat(value || ''))
+                        ? `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                        : '₹'
+                    }
                   />
                 </Grid.Col>
 
                 <Grid.Col span={6}>
-                  <Controller
-                    name="salaryMax"
-                    control={control}
-                    render={({ field }) => (
-                      <NumberInput
-                        label="Salary Max"
-                        placeholder="₹12,00,000"
-                        value={field.value}
-                        onChange={(val) => field.onChange(val ?? undefined)}
-                        hideControls
-                        styles={sharedStyles}
-                        withAsterisk={false}
-                        parser={(value: string) =>
-                          value?.replace(/₹\s?|(,*)/g, '') ?? ''
-                        }
-                        formatter={(value: string) => {
-                          const num = Number(value.replace(/₹|,/g, ''));
-                          if (Number.isNaN(num)) return '₹';
-                          return `₹${num.toLocaleString()}`;
-                        }}
-                      />
-                    )}
+                  <NumberInput
+                    label="Salary Max"
+                    placeholder="₹12,00,000"
+                    prefix="₹"
+                    {...register('salaryMax')}
+                    hideControls
+                    styles={sharedStyles}
+                    withAsterisk={false}
+                    parser={(value) => value?.replace(/₹\s?|(,*)/g, '')}
+                    formatter={(value) =>
+                      !Number.isNaN(parseFloat(value || ''))
+                        ? `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                        : '₹'
+                    }
                   />
                 </Grid.Col>
               </Grid>
