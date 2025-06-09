@@ -1,8 +1,9 @@
 'use client';
 
-import { Box, Button, Group, Image, Text } from '@mantine/core';
+import { Box, Button, Group, Image } from '@mantine/core';
 import Link from 'next/link';
-import styles from './NavBar.module.css'
+import styles from './NavBar.module.css';
+
 export default function Navbar({ onCreateClick }: { onCreateClick: () => void }) {
   return (
     <Box
@@ -21,12 +22,12 @@ export default function Navbar({ onCreateClick }: { onCreateClick: () => void })
       }}
     >
       {/* Logo */}
-      <Group spacing="xs">
+      <Group gap="xs">
         <Image src="/cmwlogo.svg" alt="Logo" width={32} height={32} />
       </Group>
 
       {/* Nav Links */}
-      <Group spacing="lg" ml="lg">
+      <Group gap="lg" ml="lg">
         <Link href="#" className={styles.navLink}>Home</Link>
         <Link href="#" className={styles.navLink}>Find Jobs</Link>
         <Link href="#" className={styles.navLink}>Find Talents</Link>
