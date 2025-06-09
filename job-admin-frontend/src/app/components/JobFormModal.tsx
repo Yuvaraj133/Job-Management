@@ -16,11 +16,17 @@ import { useForm, Controller } from 'react-hook-form';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 export default function JobFormModal({ opened, close, onSubmit }: any) {
-  const { register, handleSubmit, reset, setValue, control } = useForm();
+  const { register, handleSubmit, reset, control } = useForm({
+    defaultValues: {
+      salaryMin: undefined,
+      salaryMax: undefined,
+    },
+  });
 
   const handleFormSubmit = (data: any) => {
     data.salaryMin = Number(data.salaryMin) || 0;
     data.salaryMax = Number(data.salaryMax) || 0;
+
     data.salaryRangeStr =
       data.salaryMin && data.salaryMax
         ? `₹${data.salaryMin} - ₹${data.salaryMax}`
@@ -59,7 +65,7 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
       }
     >
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <Stack gap="md" p="sm">
+        <Stack spacing="md" p="sm">
           <Grid>
             <Grid.Col span={6}>
               <TextInput
@@ -71,6 +77,7 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
                 withAsterisk={false}
               />
             </Grid.Col>
+
             <Grid.Col span={6}>
               <TextInput
                 label="Company Name"
@@ -83,80 +90,81 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
             </Grid.Col>
 
             <Grid.Col span={6}>
-              <Controller
-                name="location"
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
-                  <Select
-                    label="Location"
-                    placeholder="Choose Preferred Location"
-                    data={['Chennai', 'Bangalore', 'Remote']}
-                    styles={sharedStyles}
-                    withAsterisk={false}
-                    rightSection={<KeyboardArrowDownIcon fontSize="small" />}
-                    {...field}
-                    value={field.value || null}
-                    onChange={(value) => field.onChange(value)}
-                  />
-                )}
+              <Select
+                label="Location"
+                placeholder="Choose Preferred Location"
+                data={['Chennai', 'Bangalore', 'Remote']}
+                {...register('location')}
+                required
+                styles={sharedStyles}
+                withAsterisk={false}
+                rightSection={<KeyboardArrowDownIcon fontSize="small" />}
               />
             </Grid.Col>
+
             <Grid.Col span={6}>
-              <Controller
-                name="jobType"
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
-                  <Select
-                    label="Job Type"
-                    placeholder="Select Job Type"
-                    data={['Full-time', 'Part-time', 'Contract', 'Internship']}
-                    styles={sharedStyles}
-                    withAsterisk={false}
-                    rightSection={<KeyboardArrowDownIcon fontSize="small" />}
-                    {...field}
-                    value={field.value || null}
-                    onChange={(value) => field.onChange(value)}
-                  />
-                )}
+              <Select
+                label="Job Type"
+                data={['Full-time', 'Part-time', 'Contract', 'Internship']}
+                {...register('jobType')}
+                required
+                styles={sharedStyles}
+                withAsterisk={false}
+                rightSection={<KeyboardArrowDownIcon fontSize="small" />}
               />
             </Grid.Col>
 
             <Grid.Col span={6}>
               <Grid gutter="sm">
                 <Grid.Col span={6}>
-                  <NumberInput
-                    label="Salary Min"
-                    placeholder="₹0"
-                    prefix="₹"
-                    {...register('salaryMin')}
-                    hideControls
-                    styles={sharedStyles}
-                    withAsterisk={false}
-                    parser={(value) => value?.replace(/₹\s?|(,*)/g, '')}
-                    formatter={(value) =>
-                      !Number.isNaN(parseFloat(value || ''))
-                        ? `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                        : '₹'
-                    }
+                  <Controller
+                    name="salaryMin"
+                    control={control}
+                    render={({ field }) => (
+                      <NumberInput
+                        label="Salary Min"
+                        placeholder="₹0"
+                        value={field.value}
+                        onChange={(val) => field.onChange(val ?? undefined)}
+                        hideControls
+                        styles={sharedStyles}
+                        withAsterisk={false}
+                        parser={(value: string) =>
+                          value?.replace(/₹\s?|(,*)/g, '') ?? ''
+                        }
+                        formatter={(value: string) => {
+                          const num = Number(value.replace(/₹|,/g, ''));
+                          if (Number.isNaN(num)) return '₹';
+                          return `₹${num.toLocaleString()}`;
+                        }}
+                      />
+                    )}
                   />
                 </Grid.Col>
+
                 <Grid.Col span={6}>
-                  <NumberInput
-                    label="Salary Max"
-                    placeholder="₹12,00,000"
-                    prefix="₹"
-                    {...register('salaryMax')}
-                    hideControls
-                    styles={sharedStyles}
-                    withAsterisk={false}
-                    parser={(value) => value?.replace(/₹\s?|(,*)/g, '')}
-                    formatter={(value) =>
-                      !Number.isNaN(parseFloat(value || ''))
-                        ? `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                        : '₹'
-                    }
+                  <Controller
+                    name="salaryMax"
+                    control={control}
+                    render={({ field }) => (
+                      <NumberInput
+                        label="Salary Max"
+                        placeholder="₹12,00,000"
+                        value={field.value}
+                        onChange={(val) => field.onChange(val ?? undefined)}
+                        hideControls
+                        styles={sharedStyles}
+                        withAsterisk={false}
+                        parser={(value: string) =>
+                          value?.replace(/₹\s?|(,*)/g, '') ?? ''
+                        }
+                        formatter={(value: string) => {
+                          const num = Number(value.replace(/₹|,/g, ''));
+                          if (Number.isNaN(num)) return '₹';
+                          return `₹${num.toLocaleString()}`;
+                        }}
+                      />
+                    )}
                   />
                 </Grid.Col>
               </Grid>
@@ -208,6 +216,7 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
                 Save Draft
               </Button>
             </Box>
+
             <Box style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Button type="submit" variant="filled" color="#00AAFF">
                 Publish &raquo;
