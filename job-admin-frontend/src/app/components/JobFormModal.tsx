@@ -1,4 +1,5 @@
 'use client';
+
 import {
   Modal,
   Stack,
@@ -18,11 +19,9 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
   const { register, handleSubmit, reset, setValue } = useForm();
 
   const handleFormSubmit = (data: any) => {
-    // Convert to numbers
     data.salaryMin = Number(data.salaryMin) || 0;
     data.salaryMax = Number(data.salaryMax) || 0;
 
-    // Optional string for display
     data.salaryRangeStr =
       data.salaryMin && data.salaryMax
         ? `₹${data.salaryMin} - ₹${data.salaryMax}`
@@ -37,7 +36,6 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
     close();
   };
 
-  // Custom styles
   const sharedStyles = {
     label: { fontWeight: 500 },
     input: {
@@ -62,7 +60,7 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
       }
     >
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <Stack spacing="md" p="sm">
+        <Stack gap="md" style={{ padding: 'var(--mantine-spacing-sm)' }}>
           <Grid>
             <Grid.Col span={6}>
               <TextInput
@@ -195,7 +193,7 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
               </Button>
             </Box>
             <Box style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button type="submit" variant="filled" color="#00AAFF">
+              <Button type="submit" variant="filled" style={{ backgroundColor: '#00AAFF' }}>
                 Publish &raquo;
               </Button>
             </Box>
