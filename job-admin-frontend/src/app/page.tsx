@@ -6,7 +6,7 @@ import axios from 'axios';
 import Navbar from './components/Navbar';
 import JobCard from './components/JobCard';
 import JobFormModal from './components/JobFormModal';
-import FilterBar from './components/Filterbar'
+import FilterBar from './components/FilterBar'
 
 type Job = {
   id: number;
