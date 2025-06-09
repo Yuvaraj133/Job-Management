@@ -12,16 +12,15 @@ import {
   Box,
   NumberInput,
 } from '@mantine/core';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 export default function JobFormModal({ opened, close, onSubmit }: any) {
-  const { register, handleSubmit, reset, setValue } = useForm();
+  const { register, handleSubmit, reset, setValue, control } = useForm();
 
   const handleFormSubmit = (data: any) => {
     data.salaryMin = Number(data.salaryMin) || 0;
     data.salaryMax = Number(data.salaryMax) || 0;
-
     data.salaryRangeStr =
       data.salaryMin && data.salaryMax
         ? `₹${data.salaryMin} - ₹${data.salaryMax}`
@@ -60,7 +59,7 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
       }
     >
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <Stack gap="md" style={{ padding: 'var(--mantine-spacing-sm)' }}>
+        <Stack gap="md" p="sm">
           <Grid>
             <Grid.Col span={6}>
               <TextInput
@@ -84,26 +83,43 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
             </Grid.Col>
 
             <Grid.Col span={6}>
-              <Select
-                label="Location"
-                placeholder="Choose Preferred Location"
-                data={['Chennai', 'Bangalore', 'Remote']}
-                {...register('location')}
-                required
-                styles={sharedStyles}
-                withAsterisk={false}
-                rightSection={<KeyboardArrowDownIcon fontSize="small" />}
+              <Controller
+                name="location"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <Select
+                    label="Location"
+                    placeholder="Choose Preferred Location"
+                    data={['Chennai', 'Bangalore', 'Remote']}
+                    styles={sharedStyles}
+                    withAsterisk={false}
+                    rightSection={<KeyboardArrowDownIcon fontSize="small" />}
+                    {...field}
+                    value={field.value || null}
+                    onChange={(value) => field.onChange(value)}
+                  />
+                )}
               />
             </Grid.Col>
             <Grid.Col span={6}>
-              <Select
-                label="Job Type"
-                data={['Full-time', 'Part-time', 'Contract', 'Internship']}
-                {...register('jobType')}
-                required
-                styles={sharedStyles}
-                withAsterisk={false}
-                rightSection={<KeyboardArrowDownIcon fontSize="small" />}
+              <Controller
+                name="jobType"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <Select
+                    label="Job Type"
+                    placeholder="Select Job Type"
+                    data={['Full-time', 'Part-time', 'Contract', 'Internship']}
+                    styles={sharedStyles}
+                    withAsterisk={false}
+                    rightSection={<KeyboardArrowDownIcon fontSize="small" />}
+                    {...field}
+                    value={field.value || null}
+                    onChange={(value) => field.onChange(value)}
+                  />
+                )}
               />
             </Grid.Col>
 
@@ -193,7 +209,7 @@ export default function JobFormModal({ opened, close, onSubmit }: any) {
               </Button>
             </Box>
             <Box style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button type="submit" variant="filled" style={{ backgroundColor: '#00AAFF' }}>
+              <Button type="submit" variant="filled" color="#00AAFF">
                 Publish &raquo;
               </Button>
             </Box>
