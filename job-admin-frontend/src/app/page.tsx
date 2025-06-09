@@ -1,12 +1,20 @@
 'use client';
+
 import { useEffect, useState } from 'react';
-import { Container, Button, Divider, Title, SimpleGrid, Text } from '@mantine/core';
+import {
+  Container,
+  Button,
+  Divider,
+  Title,
+  SimpleGrid,
+  Text,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import axios from 'axios';
 import Navbar from './components/Navbar';
 import JobCard from './components/JobCard';
 import JobFormModal from './components/JobFormModal';
-import FilterBar from './components/FilterBar'
+import FilterBar from './components/FilterBar';
 
 type Job = {
   id: number;
@@ -19,9 +27,16 @@ type Job = {
   applicationDeadline: string;
 };
 
+type Filters = {
+  title: string;
+  location: string;
+  jobType: string;
+  salaryRange: [number, number];
+};
+
 export default function HomePage() {
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<Filters>({
     title: '',
     location: '',
     jobType: '',
@@ -51,60 +66,49 @@ export default function HomePage() {
       console.error('Error creating job:', err);
     }
   };
-const filteredJobs = jobs.filter((job) => {
-  const titleMatch = job.title
-    .toLowerCase()
-    .includes(filters.title.toLowerCase());
 
-  const locationMatch = filters.location
-    ? job.location.toLowerCase() === filters.location.toLowerCase()
-    : true;
+  const filteredJobs = jobs.filter((job) => {
+    const titleMatch = job.title
+      .toLowerCase()
+      .includes(filters.title.toLowerCase());
 
-  const jobTypeMatch = filters.jobType
-    ? job.jobType.toLowerCase() === filters.jobType.toLowerCase()
-    : true;
+    const locationMatch = filters.location
+      ? job.location.toLowerCase() === filters.location.toLowerCase()
+      : true;
 
-  const minFilter = filters.salaryRange[0];
-  const maxFilter = filters.salaryRange[1];
+    const jobTypeMatch = filters.jobType
+      ? job.jobType.toLowerCase() === filters.jobType.toLowerCase()
+      : true;
 
-  // Parse job.salaryRange string into min and max numbers
-  let jobSalaryMin = 0;
-  let jobSalaryMax = 0;
+    const minFilter = filters.salaryRange[0];
+    const maxFilter = filters.salaryRange[1];
 
-  if (job.salaryRange.includes('-')) {
-    const parts = job.salaryRange
-      .replace(/₹/g, '')
-      .split('-')
-      .map((s) => parseInt(s.trim()));
-    jobSalaryMin = parts[0];
-    jobSalaryMax = parts[1];
-  } else {
-    jobSalaryMin = parseInt(job.salaryRange.replace(/₹/g, '').trim());
-    jobSalaryMax = jobSalaryMin;
-  }
+    let jobSalaryMin = 0;
+    let jobSalaryMax = 0;
 
-  const salaryMatch =
-    (jobSalaryMin >= minFilter && jobSalaryMin <= maxFilter) ||
-    (jobSalaryMax >= minFilter && jobSalaryMax <= maxFilter) ||
-    (jobSalaryMin <= minFilter && jobSalaryMax >= maxFilter);
+    if (job.salaryRange.includes('-')) {
+      const parts = job.salaryRange
+        .replace(/₹/g, '')
+        .split('-')
+        .map((s) => parseInt(s.trim()));
+      jobSalaryMin = parts[0];
+      jobSalaryMax = parts[1];
+    } else {
+      jobSalaryMin = parseInt(job.salaryRange.replace(/₹/g, '').trim());
+      jobSalaryMax = jobSalaryMin;
+    }
 
-  return titleMatch && locationMatch && jobTypeMatch && salaryMatch;
-});
+    const salaryMatch =
+      (jobSalaryMin >= minFilter && jobSalaryMin <= maxFilter) ||
+      (jobSalaryMax >= minFilter && jobSalaryMax <= maxFilter) ||
+      (jobSalaryMin <= minFilter && jobSalaryMax >= maxFilter);
 
-  // const filteredJobs = jobs.filter((job) => {
-  //   const salary = parseInt(job.salaryRange);
-  //   return (
-  //     job.title.toLowerCase().includes(filters.title.toLowerCase()) &&
-  //     job.location.toLowerCase().includes(filters.location.toLowerCase()) &&
-  //     (filters.jobType === '' || job.jobType === filters.jobType) &&
-  //     salary >= filters.salaryRange[0] &&
-  //     salary <= filters.salaryRange[1]
-  //   );
-  // });
+    return titleMatch && locationMatch && jobTypeMatch && salaryMatch;
+  });
 
   return (
     <Container size="xl" py="lg">
-      <Navbar onCreateClick={open}  />
+      <Navbar onCreateClick={open} />
       <FilterBar filters={filters} setFilters={setFilters} />
       <SimpleGrid
         cols={4}
@@ -121,10 +125,6 @@ const filteredJobs = jobs.filter((job) => {
           <Text>No jobs match the selected filters.</Text>
         )}
       </SimpleGrid>
-{/* 
-      <Divider my="xl" />
-      <Title order={3} mb="sm">Post a New Job</Title>
-      <Button mb="md" onClick={open}>Create Job</Button> */}
 
       <JobFormModal opened={opened} close={close} onSubmit={handleJobCreate} />
     </Container>
